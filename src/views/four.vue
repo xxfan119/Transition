@@ -22,7 +22,7 @@
         </van-swipe-cell>
       </div>
       <van-button type="primary" size="large" @click="addPoint"
-        >添加点位</van-button
+        >添加公共点</van-button
       >
     </div>
 
@@ -42,11 +42,11 @@
     </div>
 
     <div class="param">
-      <div style="flex:2">
+      <div>
         <div>ΔX:{{ ΔX }}</div>
         <div>ΔY:{{ ΔY }}</div>
       </div>
-      <div style="flex:6">
+      <div>
         <div>m:{{ m }}</div>
         <div>α:{{ α }}</div>
       </div>
@@ -195,6 +195,7 @@ export default {
   .param {
     height: 100px;
     display: flex;
+    justify-content: space-around;
     align-items: center;
   }
 }
