@@ -86,6 +86,12 @@ export default {
       TX: [176.6503, 237.7859, 298.2639],
       TY: [115.6671, 126.1854, 121.3026],
       TZ: [111.3935, 87.9545, 167.1516],
+      // X: [93901.0407, 91789.4294, 90245.5715],
+      // Y: [5490.1367, 4928.4135, 3121.4565],
+      // Z: [31.2957, 20.1925, 3.4696],
+      // TX: [93901.0625, 91788.5262, 90244.732],
+      // TY: [5372.2391, 4809.9948, 3003.808],
+      // TZ: [38.0474, 25.867, 9.596],
       ΔX: null,
       ΔY: null,
       ΔZ: null,
@@ -193,18 +199,18 @@ export default {
       let res = [];
       for (let i = 0; i < temp.length; i++) {
         if (i <= 3) {
-          res.push(Number(temp[i][0].toFixed(4)));
+          res.push(Number(temp[i][0]));
         } else {
-          res.push(Number((temp[i][0] / res[3]).toFixed(6)));
+          res.push(Number(temp[i][0] / res[3]));
         }
       }
-      this.ΔX = res[0];
-      this.ΔY = res[1];
-      this.ΔZ = res[2];
-      this.m = res[3];
-      this.εX = res[4];
-      this.εY = res[5];
-      this.εZ = res[6];
+      this.ΔX = res[0].toFixed(4);
+      this.ΔY = res[1].toFixed(4);
+      this.ΔZ = res[2].toFixed(4);
+      this.m = res[3].toFixed(4);
+      this.εX = res[4].toFixed(6);
+      this.εY = res[5].toFixed(6);
+      this.εZ = res[6].toFixed(6);
 
       if (
         this.$store.state.sevenParam.some(

@@ -47,19 +47,46 @@
     </div>
     <div>
       <div @click="show = true" style="margin-top:10px">选择参数</div>
-      <div class="prama" style="margin-top:10px">
-        <div>ΔX</div>
-        <div>ΔY</div>
-        <div v-show="calType === 'seven'">ΔZ</div>
-        <div>m</div>
-        <div v-show="calType !== 'seven'">α</div>
-        <div v-show="calType === 'seven'">εX</div>
-        <div v-show="calType === 'seven'">εY</div>
-        <div v-show="calType === 'seven'">εZ</div>
-      </div>
-      <div class=" pramaitem">
-        <div v-for="(item, index) of L" :key="index">
-          {{ Math.round(item[0] * 100) / 100 }}
+      <div @click="showdetail(-1)" class="pramaitem">
+        <div>
+          <div>ΔX</div>
+          <div>{{ L.length ? Math.round(L[0][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div>
+          <div>ΔY</div>
+          <div>{{ L.length ? Math.round(L[1][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div v-show="calType === 'seven'">
+          <div>ΔZ</div>
+          <div>{{ L.length ? Math.round(L[2][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div>
+          <div>m</div>
+          <div>
+            {{
+              L.length
+                ? calType === "seven"
+                  ? Math.round(L[3][0] * 100) / 100
+                  : Math.round(L[2][0] * 100) / 100
+                : ""
+            }}
+          </div>
+        </div>
+        <div v-show="calType !== 'seven'">
+          <div>α</div>
+          <div>{{ L.length ? Math.round(L[3][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div v-show="calType === 'seven'">
+          <div>εX</div>
+          <div>{{ L.length ? Math.round(L[4][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div v-show="calType === 'seven'">
+          <div>εY</div>
+          <div>{{ L.length ? Math.round(L[5][0] * 100) / 100 : "" }}</div>
+        </div>
+        <div v-show="calType === 'seven'">
+          <div>εZ</div>
+          <div>{{ L.length ? Math.round(L[6][0] * 100) / 100 : "" }}</div>
         </div>
       </div>
       <van-action-sheet v-model="show" title="参数列表">
@@ -315,24 +342,48 @@ export default {
     },
     showdetail(index) {
       if (this.calType === "seven") {
-        Dialog.confirm({
-          title: "参数详情",
-          message: `
-        ΔX：${this.paramList[index][0]}  
-         ΔY：${this.paramList[index][1]}
-         ΔZ：${this.paramList[index][2]}  
-         m：${this.paramList[index][3]}
-         εX：${this.paramList[index][4]}  
-         εY：${this.paramList[index][5]}
-         εZ：${this.paramList[index][6]}`,
-        })
-          .then(() => {
-            this.L = this.paramList[index].map((item) => [item]);
-            this.show = false;
+        if (index === -1) {
+          if (this.L.length) {
+            Dialog.confirm({
+              title: "参数详情",
+              message: `
+        ΔX：${this.L[0][0].toFixed(4)}  
+         ΔY：${this.L[1][0].toFixed(4)}
+         ΔZ：${this.L[2][0].toFixed(4)}  
+         m：${this.L[3][0].toFixed(4)}
+         εX：${this.L[4][0].toFixed(6)}  
+         εY：${this.L[5][0].toFixed(6)}
+         εZ：${this.L[6][0].toFixed(6)}`,
+            })
+              .then(() => {
+                this.show = false;
+              })
+              .catch(() => {
+                // on cancel
+              });
+          } else {
+            Toast.fail("请选择参数");
+          }
+        } else {
+          Dialog.confirm({
+            title: "参数详情",
+            message: `
+        ΔX：${this.paramList[index][0].toFixed(4)}  
+         ΔY：${this.paramList[index][1].toFixed(4)}
+         ΔZ：${this.paramList[index][2].toFixed(4)}  
+         m：${this.paramList[index][3].toFixed(4)}
+         εX：${this.paramList[index][4].toFixed(6)}  
+         εY：${this.paramList[index][5].toFixed(6)}
+         εZ：${this.paramList[index][6].toFixed(6)}`,
           })
-          .catch(() => {
-            // on cancel
-          });
+            .then(() => {
+              this.L = this.paramList[index].map((item) => [item]);
+              this.show = false;
+            })
+            .catch(() => {
+              // on cancel
+            });
+        }
       } else {
         Dialog.confirm({
           title: "参数详情",
@@ -383,7 +434,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    height: 20px;
+    height: 40px;
+    margin-top: 20px;
   }
   .content {
     padding: 16px 16px;
