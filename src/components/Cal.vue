@@ -50,15 +50,15 @@
       <div @click="showdetail(-1)" class="pramaitem">
         <div>
           <div>ΔX</div>
-          <div>{{ L.length ? Math.round(L[0][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[0] * 100) / 100 : "" }}</div>
         </div>
         <div>
           <div>ΔY</div>
-          <div>{{ L.length ? Math.round(L[1][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[1] * 100) / 100 : "" }}</div>
         </div>
         <div v-show="calType === 'seven'">
           <div>ΔZ</div>
-          <div>{{ L.length ? Math.round(L[2][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[2] * 100) / 100 : "" }}</div>
         </div>
         <div>
           <div>m</div>
@@ -66,27 +66,27 @@
             {{
               L.length
                 ? calType === "seven"
-                  ? Math.round(L[3][0] * 100) / 100
-                  : Math.round(L[2][0] * 100) / 100
+                  ? Math.round(L[3] * 100) / 100
+                  : Math.round(L[2] * 100) / 100
                 : ""
             }}
           </div>
         </div>
         <div v-show="calType !== 'seven'">
           <div>α</div>
-          <div>{{ L.length ? Math.round(L[3][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[3] * 100) / 100 : "" }}</div>
         </div>
         <div v-show="calType === 'seven'">
           <div>εX</div>
-          <div>{{ L.length ? Math.round(L[4][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[4] * 100) / 100 : "" }}</div>
         </div>
         <div v-show="calType === 'seven'">
           <div>εY</div>
-          <div>{{ L.length ? Math.round(L[5][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[5] * 100) / 100 : "" }}</div>
         </div>
         <div v-show="calType === 'seven'">
           <div>εZ</div>
-          <div>{{ L.length ? Math.round(L[6][0] * 100) / 100 : "" }}</div>
+          <div>{{ L.length ? Math.round(L[6] * 100) / 100 : "" }}</div>
         </div>
       </div>
       <van-action-sheet v-model="show" title="参数列表">
@@ -385,21 +385,43 @@ export default {
             });
         }
       } else {
-        Dialog.confirm({
-          title: "参数详情",
-          message: `
+        if (index === -1) {
+          if (this.L.length) {
+            Dialog.confirm({
+              title: "参数详情",
+              message: `
+         ΔX：${this.L[0][0].toFixed(4)}  
+         ΔY：${this.L[1][0].toFixed(4)}
+         m：${this.L[2][0].toFixed(4)}  
+         α：${this.L[3][0].toFixed(4)}
+         `,
+            })
+              .then(() => {
+                this.show = false;
+              })
+              .catch(() => {
+                // on cancel
+              });
+          } else {
+            Toast.fail("请选择参数");
+          }
+        } else {
+          Dialog.confirm({
+            title: "参数详情",
+            message: `
          ΔX：${this.paramList[index][0]}  
          ΔY：${this.paramList[index][1]}
          m：${this.paramList[index][2]}  
          α：${this.paramList[index][3]}`,
-        })
-          .then(() => {
-            this.L = this.paramList[index].map((item) => [item]);
-            this.show = false;
           })
-          .catch(() => {
-            // on cancel
-          });
+            .then(() => {
+              this.L = this.paramList[index].map((item) => [item]);
+              this.show = false;
+            })
+            .catch(() => {
+              // on cancel
+            });
+        }
       }
     },
   },
