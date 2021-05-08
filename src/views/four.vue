@@ -146,10 +146,7 @@ export default {
       }
       let mm = Math.pow(temp[2][0], 2) + Math.pow(temp[3][0], 2);
       res[2] = Number(Math.sqrt(mm).toFixed(6));
-      res[3] =
-        Number(Math.acos(temp[2][0] / res[2]).toFixed(6)) *
-        (temp[3] > 0 ? 1 : -1);
-
+      res[3] = Math.atan(temp[3][0] / temp[2][0]);
       this.ΔX = res[0];
       this.ΔY = res[1];
       this.m = res[2];
