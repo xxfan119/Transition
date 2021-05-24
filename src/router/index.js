@@ -7,13 +7,13 @@ const routes = [{
         path: '/',
         name: 'index',
         component: () =>
-            import ('../views/index.vue')
+            import ('../views/calZB.vue')
     },
     {
         path: '/cal',
         name: 'cal',
         component: () =>
-            import ('../views/calZB.vue')
+            import ('../views/index.vue')
     },
     {
         path: '/about',

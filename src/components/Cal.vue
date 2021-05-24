@@ -5,10 +5,35 @@
         当前坐标系坐标
         <div class="clear" @click="clear">清空</div>
       </div>
-      <div class="zuobiao">
-        <div>X</div>
-        <div>Y</div>
-        <div v-show="calType === 'seven'">Z</div>
+      <van-dropdown-menu v-show="calType === 'seven'">
+        <van-dropdown-item v-model="value1" :options="option1" />
+      </van-dropdown-menu>
+      <van-radio-group
+        v-show="calType === 'seven'"
+        v-model="thisCS"
+        direction="horizontal"
+        class="zuobiao"
+      >
+        <van-radio name="xyh">x,y,h</van-radio>
+        <van-radio name="XYZ">X,Y,Z</van-radio>
+        <van-radio name="BLH">B,L,H</van-radio>
+      </van-radio-group>
+      <div>
+        <div class="zuobiao" v-show="thisCS === 'xyh'">
+          <div>x</div>
+          <div>y</div>
+          <div v-show="calType === 'seven'">h</div>
+        </div>
+        <div class="zuobiao" v-show="thisCS === 'XYZ'">
+          <div>X</div>
+          <div>Y</div>
+          <div v-show="calType === 'seven'">Z</div>
+        </div>
+        <div class="zuobiao" v-show="thisCS === 'BLH'">
+          <div>B</div>
+          <div>L</div>
+          <div v-show="calType === 'seven'">H</div>
+        </div>
       </div>
 
       <div v-for="i of pointNum" :key="i">
@@ -129,10 +154,35 @@
 
     <div class="mubiao">
       <div>目标坐标系坐标</div>
-      <div class="zuobiao">
-        <div>X</div>
-        <div>Y</div>
-        <div v-show="calType === 'seven'">Z</div>
+      <van-dropdown-menu v-show="calType === 'seven'">
+        <van-dropdown-item v-model="value2" :options="option2" />
+      </van-dropdown-menu>
+      <van-radio-group
+        v-show="calType === 'seven'"
+        v-model="thatCS"
+        direction="horizontal"
+        class="zuobiao"
+      >
+        <van-radio name="xyh">x,y,h</van-radio>
+        <van-radio name="XYZ">X,Y,Z</van-radio>
+        <van-radio name="BLH">B,L,H</van-radio>
+      </van-radio-group>
+      <div>
+        <div class="zuobiao" v-show="thisCS === 'xyh'">
+          <div>x</div>
+          <div>y</div>
+          <div v-show="calType === 'seven'">h</div>
+        </div>
+        <div class="zuobiao" v-show="thisCS === 'XYZ'">
+          <div>X</div>
+          <div>Y</div>
+          <div v-show="calType === 'seven'">Z</div>
+        </div>
+        <div class="zuobiao" v-show="thisCS === 'BLH'">
+          <div>B</div>
+          <div>L</div>
+          <div v-show="calType === 'seven'">H</div>
+        </div>
       </div>
 
       <div v-for="i of pointNum" :key="i">
@@ -156,6 +206,16 @@
 
 <script>
 import "../matrix";
+import {
+  PI,
+  EllipsoidParam,
+  dr,
+  rd,
+  TransRect,
+  ReTransRect,
+  TransToPM,
+  TransToDD,
+} from "../matrix";
 import Vue from "vue";
 import { Field } from "vant";
 import { Button } from "vant";
@@ -163,7 +223,13 @@ import { ActionSheet } from "vant";
 import { SwipeCell } from "vant";
 import { Toast } from "vant";
 import { Dialog } from "vant";
+import { RadioGroup, Radio } from "vant";
+import { DropdownMenu, DropdownItem } from "vant";
 
+Vue.use(DropdownMenu);
+Vue.use(DropdownItem);
+Vue.use(Radio);
+Vue.use(RadioGroup);
 Vue.use(Dialog);
 Vue.use(Toast);
 Vue.use(SwipeCell);
@@ -183,6 +249,22 @@ export default {
   },
   data() {
     return {
+      value1: 0,
+      value2: 0,
+      option1: [
+        { text: "请选择坐标系统", value: 0 },
+        { text: "北京54", value: 1 },
+        { text: "西安80", value: 2 },
+        { text: "CGCS2000", value: 3 },
+      ],
+      option2: [
+        { text: "请选择坐标系统", value: 0 },
+        { text: "北京54", value: 1 },
+        { text: "西安80", value: 2 },
+        { text: "CGCS2000", value: 3 },
+      ],
+      thisCS: "xyh",
+      thatCS: "xyh",
       show: false,
       pointNum: 1,
       X: [],
@@ -226,19 +308,7 @@ export default {
     addPoint() {
       this.pointNum++;
     },
-    calS() {
-      let X = this.X.map((item) => Number(item));
-      let Y = this.Y.map((item) => Number(item));
-      let Z = this.Z.map((item) => Number(item));
-      let len = X.length;
-      if (len !== Y.length || len !== Z.length || len < 1) {
-        Toast.fail("请输入正确的坐标数据");
-        return;
-      }
-      if (this.L.length === 0) {
-        Toast.fail("请选择参数");
-        return;
-      }
+    calllS(X, Y, Z) {
       let B = [];
       for (let i = 0; i < this.pointNum * 3; i++) {
         if (i % 3 === 0) {
@@ -281,6 +351,94 @@ export default {
         }
       });
       let X2 = B.MatrixMultiply(L);
+      return X2;
+    },
+    calS() {
+      let X = this.X.map((item) => Number(item));
+      let Y = this.Y.map((item) => Number(item));
+      let Z = this.Z.map((item) => Number(item));
+      let len = X.length;
+      if (len !== Y.length || len !== Z.length || len < 1) {
+        Toast.fail("请输入正确的坐标数据");
+        return;
+      }
+      if (this.L.length === 0) {
+        Toast.fail("请选择参数");
+        return;
+      }
+      if (this.value1 === 0) {
+        Toast.fail("请选择坐标系统");
+        return;
+      }
+      if (this.thisCS !== "xyh") {
+        if (this.thisCS === "BLH") {
+          for (let i = 0; i < len; i++) {
+            let temp = TransToPM(
+              X[i],
+              Y[i],
+              Z[i],
+              EllipsoidParam[this.value1 - 1]
+            );
+            X[i] = temp[0];
+            Y[i] = temp[1];
+            Z[i] = temp[2];
+          }
+        } else {
+          for (let i = 0; i < len; i++) {
+            let temp = ReTransRect(
+              X[i],
+              Y[i],
+              Z[i],
+              EllipsoidParam[this.value1 - 1]
+            );
+            let temp2 = TransToPM(
+              temp[0],
+              temp[1],
+              temp[2],
+              EllipsoidParam[this.value1 - 1]
+            );
+            X[i] = temp2[0];
+            Y[i] = temp2[1];
+            Z[i] = temp2[2];
+          }
+        }
+      }
+
+      let X2 = this.calllS(X, Y, Z);
+      console.log(X2);
+      if (this.thatCS !== "xyh") {
+        if (this.thatCS === "BLH") {
+          for (let i = 0; i < X2.length / 3; i++) {
+            let temp = TransToDD(
+              X2[3 * i][0],
+              X2[3 * i + 1][0],
+              X2[3 * i + 2][0],
+              EllipsoidParam[this.value2 - 1]
+            );
+            X2[3 * i][0] = temp[0];
+            X2[3 * i + 1][0] = temp[1];
+            X2[3 * i + 2][0] = temp[2];
+          }
+        } else {
+          for (let i = 0; i < X2.length / 3; i++) {
+            let temp = ReTransRect(
+              X2[3 * i][0],
+              X2[3 * i + 1][0],
+              X2[3 * i + 2][0],
+              EllipsoidParam[this.value2 - 1]
+            );
+            let temp2 = TransToPM(
+              temp[0],
+              temp[1],
+              temp[2],
+              EllipsoidParam[this.value2 - 1]
+            );
+            X2[3 * i][0] = temp2[0];
+            X2[3 * i + 1][0] = temp2[1];
+            X2[3 * i + 2][0] = temp2[2];
+          }
+        }
+      }
       for (let i = 0; i < X2.length; i++) {
         if (i % 3 === 0) {
           this.TX.push(Math.round(X2[i][0] * 10000) / 10000);
